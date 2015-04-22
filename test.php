@@ -10,7 +10,10 @@
 	if (!$obj_val) {	echo "there's nothing in object value"; }
 
 	// Connect to the sql server database
-	// TODO: Grab credentials from the config file 
+	$creds = parse_ini_file("config/app.ini");
+	$server_name = $creds['server_name'];
+	$user_name = $creds['user_name'];
+	$pw = $creds['pw']; 
 	$db_name = "TMS"; 
 	
 	$connection_info = array("Database" => $db_name, "UID" => $user_name, "PWD" => $pw); 
@@ -49,8 +52,6 @@
 		// echo "<a href='./edit_file.php'>Edit</a>"; 
 		echo "<p>" . $val . "</p>"; 
 	}
-	
-
 	
 	// print_r($row); 
 	
