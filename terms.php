@@ -25,6 +25,15 @@
 						"dbo.ThesXrefs" => "TMS")
 	*/
 	
+	// TODO: Put this into a function by itself. 
+	// Connect to TMS
+	$tms_conn_info = array("Database" => "TMS", "UID" => $user_name, "PWD" => $pw); 
+	$tms_conn = sqlsrv_connect($server_name, $tms_conn_info); 
+	if (!$tms_conn) {
+		echo "Connection to TMS could not be established <br />"; 
+		die(print_r(sqlsrv_errors(), true)); 
+	}
+	
 	// Connect to TMSThesaurus
 	$thes_conn_info = array("Database" => "TMSThesaurus", "UID" => $user_name, "PWD" => $pw); 
 	$thes_conn = sqlsrv_connect($server_name, $thes_conn_info); 
@@ -33,12 +42,17 @@
 		die(print_r(sqlsrv_errors(), true)); 
 	}
 	
-	// Connect to TMS
-	$tms_conn_info = array("Database" => "TMS", "UID" => $user_name, "PWD" => $pw); 
-	$tms_conn = sqlsrv_connect($server_name, $tms_conn_info); 
-	if (!$tms_conn) {
-		echo "Connection to TMS could not be established <br />"; 
-		die(print_r(sqlsrv_errors(), true)); 
+	// Check that this is a valid object id or object number
+	// TODO: Combine these two error checks 
+	if ($input_type == "ObjectID") {
+		if (!check_obj_id($obj_val, $tms_conn)) {
+			die('Not a valid ObjectID'); 
+		}
+	}
+	if ($input_type == "ObjectNum") {
+		if (!check_obj_num($obj_val, $tms_conn)) {
+			// die('Not a valid ObjectNumber');
+		}			
 	}
 
 	// If the input type is object number, then we need to find its object ID using the Objects table
@@ -47,22 +61,33 @@
 		$query = "SELECT ObjectID FROM dbo.Objects WHERE ObjectNumber = ?"; 
 		$params = array($obj_val); 
 		$result = sqlsrv_query($tms_conn, $query, $params); 
-		if ($result === false) {
-			die(print_r(sqlsrv_errors(), true)); 
-		}
-		// See if there are is any information actually returned from the database
-		// TODO: Fix case if there is no data returned. 
-		else if (sqlsrv_num_rows($result) === 0) {
-			die("No data returned from the search query. Try again");
-		}
-		else {
-			$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
-			$object_id = $row['ObjectID'];
-		}
+		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+		$object_id = $row['ObjectID'];
 	}
-	print_r($object_id);
 	
 	// Then find all associated term IDs for that object ID using the Thesxref table
+	$query = "SELECT TermID FROM dbo.ThesXrefs WHERE ID = ? AND TableID = ?";
+	$params = array($object_id, "108"); 
+	$result = sqlsrv_query($tms_conn, $query, $params, array("Scrollable" => SQLSRV_CURSOR_KEYSET)); 
+	
+	// Check that this returned something
+	if(!sqlsrv_num_rows($result)) {
+		die('No terms for object' . $object_id); 	
+	}
+
+	// Print out the term IDs for each
+	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
+		print_r($row['TermID']); 
+	}
+
+
+	/*
+	foreach($row as $key => $val) {
+		echo "<h2>" . $key . "</h2><a href='./edit_file.php'>Edit</a>"; 
+		// echo "<a href='./edit_file.php'>Edit</a>"; 
+		echo "<p>" . $val . "</p>"; 
+	}
+	*/
 	
 	// Then we grab all the data for each term ID using the LIDOtermsLocalTGNonly table
 	
@@ -71,6 +96,31 @@
 	// Close the database connections 
 	sqlsrv_close($thes_conn); 
 	sqlsrv_close($tms_conn); 
+	
+	/***** 	helper functions *******/
+	function check_obj_id($obj_val, $conn) {
+		$query = "SELECT ObjectNumber, ObjectID FROM dbo.Objects WHERE ObjectID = ?"; 
+		$params = array($obj_val);
+		$result = sqlsrv_query($conn, $query, $params); 
+		if(!sqlsrv_num_rows($result)) {
+			return false; 
+		}
+		else {
+			return true; 
+		}
+	}
+	
+	function check_obj_num($obj_val, $conn) {
+		$query = "SELECT ObjectNumber, ObjectID FROM dbo.Objects WHERE ObjectNumber = '" . $obj_val . "'";
+		$params = array($obj_val);
+		$result = sqlsrv_query($conn, $query, $params); 
+		if(!sqlsrv_num_rows($result)) {
+			return false; 
+		}
+		else {
+			return true; 
+		}
+	}
 
 	
 ?>
