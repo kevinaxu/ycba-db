@@ -12,11 +12,7 @@
 		echo "there's nothing in object value"; 
 	}
 	
-	// Grab credentials from the ini file 
-	$creds = parse_ini_file("config/app.ini");
-	$server_name = $creds['server_name'];
-	$user_name = $creds['user_name'];
-	$pw = $creds['pw']; 
+	
 	
 	// Table name => Database name 
 	/*
@@ -26,6 +22,7 @@
 	*/
 	
 	// TODO: Put this into a function by itself. 
+	/*
 	// Connect to TMS
 	$tms_conn_info = array("Database" => "TMS", "UID" => $user_name, "PWD" => $pw); 
 	$tms_conn = sqlsrv_connect($server_name, $tms_conn_info); 
@@ -41,6 +38,14 @@
 		echo "Connection to TMSThesaurus could not be established <br />"; 
 		die(print_r(sqlsrv_errors(), true)); 
 	}
+	*/
+
+	// Connect to TMSThesaurus
+	$thes_conn = open_db("TMSThesaurus"); 
+
+	// Connect to TMS
+	$tms_conn = open_db("TMS"); 
+
 	
 	// Check that this is a valid object id or object number
 	// TODO: Combine these two error checks 
@@ -58,11 +63,15 @@
 	// If the input type is object number, then we need to find its object ID using the Objects table
 	$object_id = $obj_val; 
 	if ($input_type == "ObjectNum") {
+		$object_id = get_id_from_num($obj_val, $tms_conn); 
+
+		/*
 		$query = "SELECT ObjectID FROM dbo.Objects WHERE ObjectNumber = ?"; 
 		$params = array($obj_val); 
 		$result = sqlsrv_query($tms_conn, $query, $params); 
 		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
 		$object_id = $row['ObjectID'];
+		*/
 	}
 	
 	// Then find all associated term IDs for that object ID using the Thesxref table
@@ -98,6 +107,37 @@
 	sqlsrv_close($tms_conn); 
 	
 	/***** 	helper functions *******/
+
+	function get_id_from_num($obj_num, $conn) {
+		$query = "SELECT ObjectID FROM dbo.Objects WHERE ObjectNumber = ?"; 
+		$params = array($obj_num); 
+		$result = sqlsrv_query($conn, $query, $params); 
+		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+		$object_id = $row['ObjectID'];
+		return $object_id; 
+	}
+
+
+
+	function open_db($db_name) {
+
+		// Grab credentials from the ini file 
+		$creds = parse_ini_file("config/app.ini");
+		$server_name = $creds['server_name'];
+		$user_name = $creds['user_name'];
+		$pw = $creds['pw']; 
+
+		$conn_info  = array("Database" => $db_name, "UID" => $user_name, "PWD" => $pw); 
+		$db_conn = sqlsrv_connect($server_name, $conn_info); 
+		if (!$db_conn) {
+			print "Connection to " . $db_name . " could not be established";  
+			die(print_r(sqlsrv_errors(), true)); 
+		}
+		return $db_conn; 
+
+	}	
+
+
 	function check_obj_id($obj_val, $conn) {
 		$query = "SELECT ObjectNumber, ObjectID FROM dbo.Objects WHERE ObjectID = ?"; 
 		$params = array($obj_val);
