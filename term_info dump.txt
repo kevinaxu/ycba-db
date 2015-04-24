@@ -1,0 +1,33 @@
+array (size=4)
+  0 => 
+    array (size=6)
+      'Term' => string 'male' (length=4)
+      'Longitude' => null
+      'LongitudeNumber' => null
+      'Latitude' => null
+      'LatitudeNumber' => null
+      'TermID' => int 106
+  1 => 
+    array (size=6)
+      'Term' => string 'portrait' (length=8)
+      'Longitude' => null
+      'LongitudeNumber' => null
+      'Latitude' => null
+      'LatitudeNumber' => null
+      'TermID' => int 32667
+  2 => 
+    array (size=6)
+      'Term' => string 'admiral' (length=7)
+      'Longitude' => null
+      'LongitudeNumber' => null
+      'Latitude' => null
+      'LatitudeNumber' => null
+      'TermID' => int 46086
+  3 => 
+    array (size=6)
+      'Term' => string 'Markham, John (1761–1827), naval officer' (length=40)
+      'Longitude' => null
+      'LongitudeNumber' => null
+      'Latitude' => null
+      'LatitudeNumber' => null
+      'TermID' => int 2041177

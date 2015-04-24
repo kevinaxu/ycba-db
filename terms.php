@@ -94,9 +94,10 @@
 	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
 		$term_info[] = $row; 
 	}
-/*	foreach($term_info as $term) {
-		print_r($term); 
-	}*/
+	var_dump($term_info); 
+	foreach($term_info as $term) {
+		var_dump($term); 
+	}
 	
 	// Close the database connections 
 	sqlsrv_close($thes_conn); 
