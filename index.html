@@ -6,23 +6,13 @@
 </head>
 <body>
 	<h1>TMS Query</h1>
-	<form action="terms.php" method="post" id="obj_input">
-
-		Search: <input type="text" name="obj_val" value="">
-
+	<form action="terms.php" method="post">
+		Search: <input type="text" name="obj_val" value="" required>
 		<select name="input_type">
-			<option value="id">ObjectID</option>
-			<option value="num">ObjectNum</option>
+			<option value="ObjectID">ObjectID</option>
+			<option value="ObjectNumber">ObjectNumber</option>
 		</select>
-		
-		<input type="submit" name="submit" />
+		<input type="submit"/>
 	</form>
-	
-		<!--
-	<form action="/constituents.php" method="post" id="obj_input">
-	-->
-
 </body>
-
-
 </html>
