@@ -62,8 +62,16 @@
 		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
 		$object_id = $row['ObjectID'];
 	}
-	// print_r($object_id); 
-	
+	print_r($object_id); 
+
+	// Get the title of this object for printing 
+	$query = "SELECT ObjectTitle FROM dbo.Objects WHERE ObjectID = ?"; 
+	$params = array($object_id); 
+	$result = sqlsrv_query($tms_conn, $query, $params); 
+	$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+	$object_title = $row['ObjectTitle'];
+
+
 	// Then find all associated term IDs for that object ID using the Thesxref table
 	$query = "SELECT TermID FROM dbo.ThesXrefs WHERE ID = ?";
 	$params = array($object_id); 
@@ -79,10 +87,7 @@
 	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
 		$term_ids[] = $row['TermID'];
 	}
-	// foreach($term_ids as $term) {
-	// 	print_r($term); 
-	// 	print("</br>");
-	// }
+
 	
 	// Then we grab all the data for each term ID using the LIDOtermsAndGeo table
 	$term_str = "('" . implode("','", $term_ids) . "')";
@@ -135,6 +140,31 @@
 	// else { print("true"); }
 	
 ?>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th>TermID</th>
+              <th>Term</th>
+              <th>Longitude</th>
+              <th>Longitude Number</th>
+              <th>Latitude</th>
+              <th>Latitude Number</th>
+            </tr>
+          </thead>
+          <tbody>
+          	<?php foreach($term_info as $term) { ?>
+	            <tr>
+	              <td><?php echo $term['TermID']; ?></td>
+	              <td><?php echo $term['Term']; ?></td>
+	              <td><?php echo $term['Longitude']; ?></td>
+	              <td><?php echo $term['LongitudeNumber']; ?></td>
+	              <td><?php echo $term['Latitude']; ?></td>
+	              <td><?php echo $term['LatitudeNumber']; ?></td>
+	        	</tr>
+	        <?php } ?>
+          </tbody>
+        </table>
 
 <h1>what up</h1>
 <?php foreach($term_info as $term) { ?>
