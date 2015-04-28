@@ -1,6 +1,34 @@
 
 <?php
 
+	# TODO: Sanitize user inputs 
+
+
+	if(isset($_POST['TermID'])) {
+		update_db(); 
+	}
+
+	function update_db() {
+
+		// Connect to the correct database
+		$thes_conn = open_db("TMSThesaurus"); 
+
+		// Figure out what changed 
+
+		// Construct the query 
+		$query = "UPDATE dbo.LIDOtermsAndGeo SET Term = ? WHERE TermID = ?"; 
+		$params = array(&$_POST['Term'], &$_POST['TermID']); 
+		$stmt = sqlsrv_prepare($thes_conn, $query, $params); 
+		// Error checking here
+		$result = sqlsrv_execute($stmt); 
+		if ($result === false) {
+			die("Problem with update"); 
+		} 
+		else {
+			print ("success with udpate!"); 
+		}
+	}
+
 	// TODO: Fix all the hardcodes 
 
 	// Get info from post request and do basic error checking
@@ -10,6 +38,17 @@
 	
 	$tms_conn = open_db("TMS"); 
 	$thes_conn = open_db("TMSThesaurus"); 
+
+	// TESTING STUFF
+	// $query = "SELECT Term FROM dbo.LIDOtermsAndGeo WHERE TermID = ?";  
+	// $params = array(106); 
+	// $result = sqlsrv_query($thes_conn, $query, $params);
+	// if ($result === false) {
+	// 	die("Query failed"); 
+	// }
+	// $object = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
+	// print_r($object); 
+	// die() ;
 	
 	// Check that this is a valid object id or object number
 	$query = "SELECT ObjectID, ObjectNumber, Title FROM dbo.Objects WHERE " . $input_type . " = ?";  
@@ -50,10 +89,10 @@
 		$term_ids[] = $row['TermID'];
 	}
 
-	
 	// Then we grab all the data for each term ID using the LIDOtermsAndGeo table
+	// NOTE: WHEN ONE OF THESE FIELDS IS NOT HERE THE ENTIRE QUERY FAILS
 	$term_str = "('" . implode("','", $term_ids) . "')";
-	$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote", 
+	$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote",
 		"Longitude", "LongitudeNumber", "Latitude", "LatitudeNumber"); 
 	$query = "SELECT " . implode(",", $term_fields) . " FROM dbo.LIDOtermsAndGeo WHERE TermID IN " . $term_str; 
 	$result = sqlsrv_query($thes_conn, $query);
@@ -86,11 +125,19 @@
 		return $db_conn; 
 	}	
 
+
+
 	// TESTING
 	// if ($result === false) { print("false"); } 
 	// else if (empty($result)) { print("empty"); }
 	// else { print("true"); }
 	 
+?>
+
+<?php 
+
+
+
 ?>
 
 <html>
@@ -148,38 +195,47 @@
 	      </div>
 
 	      <div class="row">
-	      	<form method="POST" action="edit.php">
-		        <table class="table">
-			      <thead>
-			        <tr>
-			          <th>TermID</th>
-			          <th>Term</th>
-			          <th class="filter">Source TermID</th>
-			          <th>Scope Note</th>
-			          <th>Longitude</th>
-			          <th>Longitude Number</th>
-			          <th>Latitude</th>
-			          <th>Latitude Number</th>
-			        </tr>
-			      </thead>
-			      <tbody>
-			      	<?php foreach($term_info as $term) { ?>
-			            <tr>
-			              <td><input type="text" name="tid" value=<?php echo $term['TermID']; ?>></td>
-			              <!-- <td><?php echo $term['TermID']; ?></td> -->
-			              <td><?php echo $term['Term']; ?></td>
-			              <td><?php echo $term['SourceTermID']; ?></td>
-			              <td><?php echo $term['ScopeNote']; ?></td>
-			              <td><?php echo $term['Longitude']; ?></td>
-			              <td><?php echo $term['LongitudeNumber']; ?></td>
-			              <td><?php echo $term['Latitude']; ?></td>
-			              <td><?php echo $term['LatitudeNumber']; ?></td>
+	        <table class="table">
+		      <thead>
+		        <tr>
+		          <th class="col-md-1">TermID</th>
+		          <th class="col-md-2">Term</th>
+		          <th class="col-md-1">Source TermID</th>
+		          <th class="col-md-3">Scope Note</th>
+		          <th class="col-md-1">Long.</th>
+		          <th class="col-md-1">Long. #</th>
+		          <th class="col-md-1">Lat.</th>
+		          <th class="col-md-1">Lat. #</th>
+		          <th class="col-md-1"></th>
+		        </tr>
+		      </thead>
+		    </table>
 
-			              <!-- source term ID, scope notes -->
-			        	</tr>
-			        <?php } ?>
-			      </tbody>
-			    </table>
+		    <?php foreach($term_info as $term) { ?>
+		    <table class="table">
+		      <tbody>
+		      	<form action="terms.php" method="POST">
+		            <tr>
+		            	<!-- Hidden inputs with post data to refresh page -->
+		              	<input type="hidden" name="obj_val" value=<?php echo $obj_val; ?>>
+		              	<input type="hidden" name="input_type" value=<?php echo $input_type; ?>>
+
+		              	<td><input type="text" name="TermID" value=<?php echo $term['TermID']; ?>></td>
+		              	<!-- <td><?php echo $term['TermID']; ?></td>  -->
+		              	<td><input type="text" name="Term" value=<?php echo $term['Term']; ?>></td>
+		              	<td><?php echo $term['SourceTermID']; ?></td>
+		              	<td><?php echo $term['ScopeNote']; ?></td>
+		              	<td><?php echo $term['Longitude']; ?></td>
+		              	<td><?php echo $term['LongitudeNumber']; ?></td>
+		              	<td><?php echo $term['Latitude']; ?></td>
+		              	<td><?php echo $term['LatitudeNumber']; ?></td>
+		              	<td><input type="submit" value="submit"></td>
+		        	</tr>
+		    	</form>
+		      </tbody>
+		    </table>
+		   	<?php } ?>
+
 	      </div>
 	    </div> <!-- /container -->
 
@@ -206,51 +262,3 @@
 
 	</body>
 </html>
-
-
-<!-- 	// If the input type is object number, then we need to find its object ID using the Objects table
-	$object_id = $obj_val; 
-	if ($input_type == "ObjectNum") {
-		$query = "SELECT ObjectID FROM dbo.Objects WHERE ObjectNumber = ?"; 
-		$params = array($obj_val); 
-		$result = sqlsrv_query($tms_conn, $query, $params); 
-		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
-		$object_id = $row['ObjectID'];
-	}
-	print_r($object_id); 
-
-	// Get the title of this object for printing 
-	$query = "SELECT Title, ObjectNumber FROM dbo.Objects WHERE ObjectID = ?"; 
-	$params = array($object_id); 
-	$result = sqlsrv_query($tms_conn, $query, $params); 
-	$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
-	$object_title = $row['Title'];
-	$object_number = $row['ObjectNumber']; 
-
-	function check_obj_id($obj_val, $conn) {
-		$query = "SELECT ObjectNumber, ObjectID FROM dbo.Objects WHERE ObjectID = ?"; 
-		$params = array($obj_val);
-		$result = sqlsrv_query($conn, $query, $params); 
-		if(!sqlsrv_num_rows($result)) {
-			return false; 
-		}
-		else {
-			return true; 
-		}
-	}
-	
-	function check_obj_num($obj_val, $conn) {
-		$query = "SELECT ObjectNumber, ObjectID FROM dbo.Objects WHERE ObjectNumber = '" . $obj_val . "'";
-		$params = array($obj_val);
-		$result = sqlsrv_query($conn, $query, $params); 
-		if(!sqlsrv_num_rows($result)) {
-			return false; 
-		}
-		else {
-			return true; 
-		}
-	}
-
-
--->
-
