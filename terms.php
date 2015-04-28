@@ -166,6 +166,10 @@
     <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
 
+  	<style>
+    	.table thead>tr>th {border:none;}
+	</style>
+
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
       <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
@@ -185,7 +189,6 @@
 	        </div>
 	      </div>
 	    </nav>
-
 	    <div class="container theme-showcase" role="main">
 
 	      <div class="object-header">
@@ -195,7 +198,7 @@
 	      </div>
 
 	      <div class="row">
-	        <table class="table">
+	        <table class="table borderless" style="margin-bottom:0px;">
 		      <thead>
 		        <tr>
 		          <th class="col-md-1">TermID</th>
@@ -211,43 +214,71 @@
 		      </thead>
 		    </table>
 
+			
 		    <?php foreach($term_info as $term) { ?>
-		    <table class="table">
-		      <tbody>
-		      	<form action="terms.php" method="POST">
-		            <tr>
-		            	<!-- Hidden inputs with post data to refresh page -->
-		              	<input type="hidden" name="obj_val" value=<?php echo $obj_val; ?>>
-		              	<input type="hidden" name="input_type" value=<?php echo $input_type; ?>>
+			    <form action="terms.php" method="POST">
+				    <table class="table">
+				      	<tbody>
+			      	
+			            	<tr>
+				            	<!-- Hidden inputs with post data to refresh page -->
+				              	<input type="hidden" name="obj_val" value=<?php echo $obj_val; ?>>
+				              	<input type="hidden" name="input_type" value=<?php echo $input_type; ?>>
 
-		              	<td><input type="text" name="TermID" value=<?php echo $term['TermID']; ?>></td>
-		              	<!-- <td><?php echo $term['TermID']; ?></td>  -->
-		              	<td><input type="text" name="Term" value=<?php echo $term['Term']; ?>></td>
-		              	<td><?php echo $term['SourceTermID']; ?></td>
-		              	<td><?php echo $term['ScopeNote']; ?></td>
-		              	<td><?php echo $term['Longitude']; ?></td>
-		              	<td><?php echo $term['LongitudeNumber']; ?></td>
-		              	<td><?php echo $term['Latitude']; ?></td>
-		              	<td><?php echo $term['LatitudeNumber']; ?></td>
-		              	<td><input type="submit" value="submit"></td>
-		        	</tr>
-		    	</form>
-		      </tbody>
-		    </table>
+<!-- 				              	<td class="col-md-1"><?php echo $term['TermID']; ?></td>
+				              	<td class="col-md-2">
+				              		<textarea class="form-control" type="text" name="Term"><?php echo $term['Term']; ?></textarea>
+				              	</td>
+				              	<td class="col-md-1"><?php echo $term['SourceTermID']; ?></td>
+				              	<td class="col-md-4"><?php echo $term['ScopeNote']; ?></td>
+				              	<td class="col-md-1"><?php echo $term['Longitude']; ?></td>
+				              	<td class="col-md-1"><?php echo $term['LongitudeNumber']; ?></td>
+				              	<td class="col-md-1"><?php echo $term['Latitude']; ?></td>
+				              	<td class="col-md-1"><?php echo $term['LatitudeNumber']; ?></td> -->
+
+				              	<!-- <td class="col-md-1">
+				              		<input class="form-control" type="text" name="TermID" value=<?php echo $term['TermID']; ?>>
+				              	</td> -->
+				              	<td class="col-md-1" style="font-weight:bold;"><?php echo $term['TermID']; ?></td>
+				              	<td class="col-md-2">
+				              		<textarea class="form-control" rows="3" type="text" name="Term" style="resize:vertical;"><?php echo $term['Term']; ?></textarea>
+				              	</td>
+				              	<td class="col-md-1">
+				              		<!-- <input class="form-control" type="text" name="SourceTermID" value=<?php echo $term['SourceTermID']; ?>> -->
+				              		<textarea class="form-control" rows="1" type="text" name="SourceTermID" style="resize:none;"><?php echo $term['SourceTermID']; ?></textarea>
+				              	</td>
+				              	<td class="col-md-3">
+				              		<textarea class="form-control" rows="3" type="text" name="ScopeNote" style="resize:vertical;"><?php echo $term['ScopeNote']; ?></textarea>
+				              	</td>
+				              	<td class="col-md-1">
+				              		<input class="form-control" type="text" name="Longitude" value=<?php echo $term['Longitude']; ?>>
+				              	</td>
+				              	<td class="col-md-1">
+				              		<input class="form-control" type="text" name="LongitudeNumber" value=<?php echo $term['LongitudeNumber']; ?>>
+				              	</td>
+				              	<td class="col-md-1">
+				              		<input class="form-control" type="text" name="Latitude" value=<?php echo $term['Latitude']; ?>>
+				              	</td>
+				              	<td class="col-md-1">
+				              		<input class="form-control" type="text" name="LatitudeNumber" value=<?php echo $term['LatitudeNumber']; ?>>
+				              	</td>
+				              	<td class="col-md-1"><button type="submit" class="btn btn-success btn-sm">update</button></td>
+			        		</tr>
+			    	
+				      	</tbody>
+				    </table>
+			    </form>
 		   	<?php } ?>
 
 	      </div>
 	    </div> <!-- /container -->
 
 		<script type="text/javascript">
-		$(document).ready(function() {
-			$('.filter').click(function() {
-				// alert("filter was clicked"); 
-			}); 
-			// $('.table > tr').click(function() {
-			// 	alert("row was clicked"); 
-			// }); 
-		}); 
+		// $(document).ready(function() {
+		// 	$('.filter').click(function() {
+		// 		alert("filter was clicked"); 
+		// 	}); 
+		// }); 
 		</script>
 	    
         <!-- Bootstrap core JavaScript
