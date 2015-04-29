@@ -10,23 +10,38 @@
 
 	function update_db() {
 
+		// var_dump($_POST); 
+
 		// Connect to the correct database
 		$thes_conn = open_db("TMSThesaurus"); 
 
-		// Figure out what changed 
+		$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote",
+			"Longitude", "LongitudeNumber", "Latitude", "LatitudeNumber"); 
+		$query = "SELECT " . implode(",", $term_fields) . " FROM dbo.LIDOtermsAndGeo WHERE TermID = " . $_POST['TermID'];  
+		$result = sqlsrv_query($thes_conn, $query); 
+		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC); 
 
-		// Construct the query 
-		$query = "UPDATE dbo.LIDOtermsAndGeo SET Term = ? WHERE TermID = ?"; 
-		$params = array(&$_POST['Term'], &$_POST['TermID']); 
-		$stmt = sqlsrv_prepare($thes_conn, $query, $params); 
-		// Error checking here
-		$result = sqlsrv_execute($stmt); 
-		if ($result === false) {
-			die("Problem with update"); 
-		} 
-		else {
-			print ("success with udpate!"); 
+		foreach($term_fields as $field) {
+			if (strcmp($row[$field], $_POST[$field]) !== 0) {
+				$query = "UPDATE dbo.LIDOtermsAndGeo SET " . $field . " = ? WHERE TermID = ?"; 
+				print_r($query); 
+				$params = array(&$_POST[$field], &$_POST['TermID']); 
+				$stmt = sqlsrv_prepare($thes_conn, $query, $params); 
+				// var_dump($stmt); 
+
+				// // Error checking here
+				$result = sqlsrv_execute($stmt); 
+				if ($result === false) {
+					die("Problem with update"); 
+				} 
+				else {
+					print("success"); 
+				}
+			}
 		}
+		
+
+		// Get values of the term
 	}
 
 	// TODO: Fix all the hardcodes 
@@ -224,6 +239,7 @@
 				            	<!-- Hidden inputs with post data to refresh page -->
 				              	<input type="hidden" name="obj_val" value=<?php echo $obj_val; ?>>
 				              	<input type="hidden" name="input_type" value=<?php echo $input_type; ?>>
+				              	<input type="hidden" name="TermID" value=<?php echo $term['TermID']; ?>>
 
 <!-- 				              	<td class="col-md-1"><?php echo $term['TermID']; ?></td>
 				              	<td class="col-md-2">
