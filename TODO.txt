@@ -1,0 +1,9 @@
+todo: 
+
+explanation about why you can modify long and lat for some terms but not others
+
+
+installation: 
+download web server
+figure out where the sqlsrv package is stored
+change inputs to text areas
