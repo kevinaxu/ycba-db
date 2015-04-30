@@ -2,101 +2,53 @@
 <?php
 
 	# TODO: Sanitize user inputs 
+// TODO: Fix all the hardcodes 
 
+	$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote",
+		"Longitude", "LongitudeNumber", "Latitude", "LatitudeNumber"); 
 
 	if(isset($_POST['TermID'])) {
-		update_db(); 
+		update_db($term_fields); 
 	}
-
-	function update_db() {
-
-		// var_dump($_POST); 
-
-		// Connect to the correct database
-		$thes_conn = open_db("TMSThesaurus"); 
-
-		$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote",
-			"Longitude", "LongitudeNumber", "Latitude", "LatitudeNumber"); 
-		$query = "SELECT " . implode(",", $term_fields) . " FROM dbo.LIDOtermsAndGeo WHERE TermID = " . $_POST['TermID'];  
-		$result = sqlsrv_query($thes_conn, $query); 
-		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC); 
-
-		foreach($term_fields as $field) {
-			if (strcmp($row[$field], $_POST[$field]) !== 0) {
-				$query = "UPDATE dbo.LIDOtermsAndGeo SET " . $field . " = ? WHERE TermID = ?"; 
-				print_r($query); 
-				$params = array(&$_POST[$field], &$_POST['TermID']); 
-				$stmt = sqlsrv_prepare($thes_conn, $query, $params); 
-				// var_dump($stmt); 
-
-				// // Error checking here
-				$result = sqlsrv_execute($stmt); 
-				if ($result === false) {
-					die("Problem with update"); 
-				} 
-				else {
-					print("success"); 
-				}
-			}
-		}
-		
-
-		// Get values of the term
-	}
-
-	// TODO: Fix all the hardcodes 
-
+	
 	// Get info from post request and do basic error checking
 	// INPUT contains obj_val and input_type
 	$obj_val = $_POST['obj_val']; 
-	$input_type = $_POST['input_type']; 			// Eitehr ObjectID or ObjectNumber
+	$input_type = $_POST['input_type']; 			// Either ObjectID or ObjectNumber
 	
 	$tms_conn = open_db("TMS"); 
 	$thes_conn = open_db("TMSThesaurus"); 
 
-	// TESTING STUFF
-	// $query = "SELECT Term FROM dbo.LIDOtermsAndGeo WHERE TermID = ?";  
-	// $params = array(106); 
-	// $result = sqlsrv_query($thes_conn, $query, $params);
-	// if ($result === false) {
-	// 	die("Query failed"); 
-	// }
-	// $object = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
-	// print_r($object); 
-	// die() ;
-	
 	// Check that this is a valid object id or object number
 	$query = "SELECT ObjectID, ObjectNumber, Title FROM dbo.Objects WHERE " . $input_type . " = ?";  
 	$params = array($obj_val); 
-	$result = sqlsrv_query($tms_conn, $query, $params);
-	$object = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
 
-	// Check if query failed or didn't return anything. 
-	// there are going to be three cases
-	// 1. the query succeeds and returns data
-	// 2. the query succeeds but returns nothing
-	// 3. the query fails 
+	// Check if the query completed successfully
+	$result = sqlsrv_query($tms_conn, $query, $params);
 	if ($result === false) {
-		die("Query failed"); 
+		print_error("Query failed. Make sure the object ID/Number field is correct."); 
 	}
+
+	// Check if query returned any values. (succesful queries can still be empty)
+	$object = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC);
 	if (is_null($object)) {
-		die("Query returned nothing"); 
+		print_error($input_type . " " . $obj_val . " does not exist."); 
 	}
 
 	// Then find all associated term IDs for that object ID using the Thesxref table
 	$query = "SELECT TermID FROM dbo.ThesXrefs WHERE ID = ?";
 	$params = array($object["ObjectID"]); 
+	
+	// Check if query completed successfully 
 	$result = sqlsrv_query($tms_conn, $query, $params, array("Scrollable" => SQLSRV_CURSOR_KEYSET)); 
-
-	// Error checking 
 	if ($result === false) {
-		die("Query failed"); 
+		print_error("Query to find all term ids associated with ObjectID " . $object["ObjectID"] . " failed."); 
 	}
 
-	// Check that this returned something
-	// if(!sqlsrv_num_rows($result)) {
-	// 	die('No terms for object' . $object_id); 	
-	// }
+	// Check if query returned any values 
+	if(!sqlsrv_num_rows($result)) {
+		print_error("No terms for object id " . $object["ObjectID"]); 	
+	}
 
 	// Get a list of all the associated term ids for an object 
 	$term_ids = []; 
@@ -107,10 +59,11 @@
 	// Then we grab all the data for each term ID using the LIDOtermsAndGeo table
 	// NOTE: WHEN ONE OF THESE FIELDS IS NOT HERE THE ENTIRE QUERY FAILS
 	$term_str = "('" . implode("','", $term_ids) . "')";
-	$term_fields = array("Term", "TermID", "SourceTermID", "ScopeNote",
-		"Longitude", "LongitudeNumber", "Latitude", "LatitudeNumber"); 
 	$query = "SELECT " . implode(",", $term_fields) . " FROM dbo.LIDOtermsAndGeo WHERE TermID IN " . $term_str; 
 	$result = sqlsrv_query($thes_conn, $query);
+	if ($result === false) {
+		print_error("Query to get all term data for object id " . $object['ObjectID'] . "failed"); 
+	}
 
 	$term_info = []; 
 	while ($row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)) {
@@ -127,31 +80,53 @@
 		// Grab credentials from the ini file 
 		$creds = parse_ini_file("config/app.ini");
 		$server_name = $creds['server_name'];
-		$user_name = $creds['user_name'];
+		$user_name = $creds['user_name']; 
 		$pw = $creds['pw']; 
 
 		$conn_info = array("Database" => $db, "UID" => $user_name, "PWD" => $pw, "CharacterSet" => "UTF-8"); 
 		$db_conn = sqlsrv_connect($server_name, $conn_info); 
 		if (!$db_conn) {
-			print "Connection to " . $db . " could not be established";  
-			die(print_r(sqlsrv_errors(), true)); 
+
+			// Die on error and print out stack trace. 
+			print_error("Connection to " . $db . " could not be established."); 
 		}
 
 		return $db_conn; 
 	}	
 
+	function update_db($term_fields) {
 
+		// Connect to the correct database
+		$thes_conn = open_db("TMSThesaurus"); 
 
-	// TESTING
-	// if ($result === false) { print("false"); } 
-	// else if (empty($result)) { print("empty"); }
-	// else { print("true"); }
-	 
-?>
+		$query = "SELECT " . implode(",", $term_fields) . " FROM dbo.LIDOtermsAndGeo WHERE TermID = " . $_POST['TermID'];  
+		$result = sqlsrv_query($thes_conn, $query); 
+		$row = sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC); 
 
-<?php 
+		foreach($term_fields as $field) {
+			if (strcmp($row[$field], $_POST[$field]) !== 0) {
+				$query = "UPDATE dbo.LIDOtermsAndGeo SET " . $field . " = ? WHERE TermID = ?"; 
+				$params = array(&$_POST[$field], &$_POST['TermID']); 
+				$stmt = sqlsrv_prepare($thes_conn, $query, $params); 
+				if ($stmt === false) {
+					print_error("Preparing update for term id " . $_POST['TermID'] . " failed"); 
+				}
 
+				// Error checking here
+				$result = sqlsrv_execute($stmt); 
+				if ($result === false) {
+					print_error("Update for term id " . $_POST['TermID'] . " failed"); 
+				} 
+			}
+		}
+	}
 
+	function print_error($msg) {
+		echo "<h1>" . $msg . "</h1>"; 
+		echo "<h2><a href='index.html'>Return to search</a></h2>"; 
+		echo "<h2>Stack Trace:</h2>"; 
+		die(var_dump(sqlsrv_errors())); 
+	}
 
 ?>
 
@@ -165,6 +140,9 @@
     <meta name="author" content="Kevin Xu">
     <title>Terms Lookup</title>
 
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+	<link rel="icon" href="favicon.ico" type="image/x-icon">
+
     <!-- Bootstrap core CSS -->
     <link href="http://getbootstrap.com/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap theme -->
@@ -173,17 +151,13 @@
     <!-- Custom styles for this template -->
     <link href="http://getbootstrap.com/examples/theme/theme.css" rel="stylesheet">
 
+    <!-- My custom css --> 
+    <link href="style.css" rel="stylesheet">
+
     <!-- Just for debugging purposes. Don't actually copy these 2 lines! -->
     <!--[if lt IE 9]><script src="../../assets/js/ie8-responsive-file-warning.js"></script><![endif]
     <script src="http://getbootstrap.com/assets/js/ie-emulation-modes-warning.js"></script>
   -->
-
-    <link href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.js"></script>
-
-  	<style>
-    	.table thead>tr>th {border:none;}
-	</style>
 
     <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -207,13 +181,12 @@
 	    <div class="container theme-showcase" role="main">
 
 	      <div class="object-header">
-	        <h2 style="margin-bottom: 0px;"><?php echo $object['Title']; ?></h2>
-	        <h4 style="margin-top: 10px;"><?php echo $object['ObjectNumber']; ?></h3>
-	        <br>
+	        <h2><?php echo $object['Title']; ?></h2>
+	        <h4><?php echo $object['ObjectNumber']; ?></h3>
 	      </div>
 
 	      <div class="row">
-	        <table class="table borderless" style="margin-bottom:0px;">
+	        <table class="table borderless">
 		      <thead>
 		        <tr>
 		          <th class="col-md-1">TermID</th>
@@ -228,7 +201,6 @@
 		        </tr>
 		      </thead>
 		    </table>
-
 			
 		    <?php foreach($term_info as $term) { ?>
 			    <form action="terms.php" method="POST">
@@ -241,42 +213,27 @@
 				              	<input type="hidden" name="input_type" value=<?php echo $input_type; ?>>
 				              	<input type="hidden" name="TermID" value=<?php echo $term['TermID']; ?>>
 
-<!-- 				              	<td class="col-md-1"><?php echo $term['TermID']; ?></td>
+				              	<td class="col-md-1" id="t_id"><?php echo $term['TermID']; ?></td>
 				              	<td class="col-md-2">
-				              		<textarea class="form-control" type="text" name="Term"><?php echo $term['Term']; ?></textarea>
-				              	</td>
-				              	<td class="col-md-1"><?php echo $term['SourceTermID']; ?></td>
-				              	<td class="col-md-4"><?php echo $term['ScopeNote']; ?></td>
-				              	<td class="col-md-1"><?php echo $term['Longitude']; ?></td>
-				              	<td class="col-md-1"><?php echo $term['LongitudeNumber']; ?></td>
-				              	<td class="col-md-1"><?php echo $term['Latitude']; ?></td>
-				              	<td class="col-md-1"><?php echo $term['LatitudeNumber']; ?></td> -->
-
-				              	<!-- <td class="col-md-1">
-				              		<input class="form-control" type="text" name="TermID" value=<?php echo $term['TermID']; ?>>
-				              	</td> -->
-				              	<td class="col-md-1" style="font-weight:bold;"><?php echo $term['TermID']; ?></td>
-				              	<td class="col-md-2">
-				              		<textarea class="form-control" rows="3" type="text" name="Term" style="resize:vertical;"><?php echo $term['Term']; ?></textarea>
+				              		<textarea class="form-control" rows="2" type="text" name="Term"><?php echo $term['Term']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1">
-				              		<!-- <input class="form-control" type="text" name="SourceTermID" value=<?php echo $term['SourceTermID']; ?>> -->
-				              		<textarea class="form-control" rows="1" type="text" name="SourceTermID" style="resize:none;"><?php echo $term['SourceTermID']; ?></textarea>
+				              		<textarea class="form-control" rows="2" type="text" name="SourceTermID"><?php echo $term['SourceTermID']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-3">
-				              		<textarea class="form-control" rows="3" type="text" name="ScopeNote" style="resize:vertical;"><?php echo $term['ScopeNote']; ?></textarea>
+				              		<textarea class="form-control" rows="3" type="text" name="ScopeNote"><?php echo $term['ScopeNote']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1">
-				              		<input class="form-control" type="text" name="Longitude" value=<?php echo $term['Longitude']; ?>>
+				              		<textarea class="form-control" rows="2" type="text" name="Longitude"><?php echo $term['Longitude']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1">
-				              		<input class="form-control" type="text" name="LongitudeNumber" value=<?php echo $term['LongitudeNumber']; ?>>
+				              		<textarea class="form-control" rows="2" type="text" name="LongitudeNumber"><?php echo $term['LongitudeNumber']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1">
-				              		<input class="form-control" type="text" name="Latitude" value=<?php echo $term['Latitude']; ?>>
+				              		<textarea class="form-control" rows="2" type="text" name="Latitude"><?php echo $term['Latitude']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1">
-				              		<input class="form-control" type="text" name="LatitudeNumber" value=<?php echo $term['LatitudeNumber']; ?>>
+				              		<textarea class="form-control" rows="2" type="text" name="LatitudeNumber"><?php echo $term['LatitudeNumber']; ?></textarea>
 				              	</td>
 				              	<td class="col-md-1"><button type="submit" class="btn btn-success btn-sm">update</button></td>
 			        		</tr>

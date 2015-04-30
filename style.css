@@ -1,0 +1,80 @@
+.table thead>tr>th {
+	border: none;
+}
+
+h2 {
+	margin-bottom: 0px;
+}
+
+h4 {
+	margin-top: 10px;
+	margin-bottom: 25px;
+}
+
+table.borderless {
+	margin-bottom: 0px;
+}
+
+#t_id {
+	font-weight: bold;
+}
+
+textarea {
+	resize: vertical; 
+}
+
+html {
+	background: url(turner.jpg) no-repeat center center fixed; 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+body.index {
+	padding-top: 20px;
+	font-size: 16px;
+	font-family: "Open Sans",serif;
+	background: transparent;
+}
+
+h1 {
+	font-family: "Abel", Arial, sans-serif;
+	font-weight: 400;
+	font-size: 40px;
+}
+
+/* Override B3 .panel adding a subtly transparent background */
+.panel {
+	background-color: rgba(255, 255, 255, 0.9);
+}
+
+.margin-base-vertical {
+	margin: 20px 0 20px 20px;
+}
+
+.object-input {
+	margin: 0 5px 0 5px;
+}
+
+#search {
+	margin-top: 10%; 
+	opacity: 0.85;
+}
+
+.form-inline {
+	margin-bottom:30px;
+	margin-left: 20px;
+}
+
+.control-label {
+	margin-left: 15px;
+}
+
+#search_input {
+	width: 40%;
+}
+
+#form_field {
+	width: 150px; 
+}
