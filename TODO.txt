@@ -7,3 +7,29 @@ installation:
 download web server
 figure out where the sqlsrv package is stored
 change inputs to text areas
+
+
+
+INSTALLATION
+
+1. Download and install WampServer. Make sure you download the 32-bit version!
+2. Towards the end of the installation process, you may get an error message that looks like this: 
+
+
+3. Install all the necessary drivers....
+
+4. Download the ycba-db reposity from Github. Extract the contents of the repo and rename the directory as 'ycba'. 
+
+5. Find the 'config' folder in 'ycba'. Rename 'app.ini.example' to 'app.ini'. Open the file and put in your credentials. 
+
+6. Go to "localhost/ycba/index.html" in your web browser to pull up the search page. 
+
+Finagle with the wamp server to get it started 
+Download the sqlsrv drivers
+Load the drivers by modifying php.ini
+
+Download odbc drivers
+sqlncli.msi
+
+
+Sometimes there are problems with microsoft download center. 
