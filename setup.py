@@ -8,7 +8,8 @@ def main():
 	# Download the repository from github
 	# Unpack and rename to 'ycba'
 	# Rename app.ini.example to app.ini
-	# Add credentials into app.ini 
+	# Prompt for user credentials here and then save them
+	#	to the app.ini file 
 
 	# Confirm that wamp server installed correctly
 	# Move the ycba directory into c:/wamp/www
@@ -23,7 +24,6 @@ def main():
 	# Restart wamp server and confirm that it's working 
 
 
-	# resources
 	#	-> drivers 
 	#		-> php_sqlsrv
 	#			-> ts.dll

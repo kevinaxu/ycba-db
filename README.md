@@ -16,7 +16,11 @@ Setup
 2.	Run the setup script to create the project directory, modify config files, 
 	and install the necessary drivers. 
 
+	Input credentials during the setup script 
+
+'''
 	$ ./setup.py 
+'''
 
 3.	Manually restart WampServer by going to the icon in the taskbar and clicking "Restart all services". 
 
