@@ -23,8 +23,6 @@ def main():
 	# Restart wamp server and confirm that it's working 
 
 
-
-
 	# resources
 	#	-> drivers 
 	#		-> php_sqlsrv
