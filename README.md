@@ -3,6 +3,10 @@ YCBA Terms Lookup
 
 The Yale Center for British Art Terms Lookup Tool is used to query and update terms associated with an object. 
 
+<p align="center">
+  <img src="https://github.com/kevinaxu/ycba-db/blob/master/img/turner.jpg" alt="YCBA Terms Lookup Landing Page" title="Landing Page" />
+</p>
+
 Setup
 -----
 
