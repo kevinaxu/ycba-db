@@ -16,6 +16,32 @@ Setup
 
 1.  Download the 32-bit version of [WampServer](http://www.wampserver.com/en/). 
 	Install WampServer using all the default settings. 
+
+	You might encounter an error that says "Missing mscrvc110.dll". This will be resolved in 
+	a later step. 
+
+2. 	Download this repository. Extract the contents and rename the folder to 'ycba'. 
+	Open up the directory where WampServer was downloaded (should be in the C drive). 
+	Move the ycba repository into the www folder of wamp. The final directory structure should look like this: 
+
+	--> C:\wamp
+		--> www
+			--> ycba
+				--> index.html
+				---> ...
+
+3. 	Install the Microsoft Visual C++ Redistributable drivers. 
+	This should get rid of the mscrv.dll error. 
+	Run the executables depending on your machine. 32-bit machines should run the executables 
+	in the x86 folder. 64-bit machines should run the x64. 
+
+
+
+
+
+
+
+
 	
 2.	Run the setup script to create the project directory, modify config files, 
 	and install the necessary drivers. 

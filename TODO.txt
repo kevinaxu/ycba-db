@@ -31,4 +31,6 @@ Load the drivers by modifying php.ini
 Download odbc drivers
 sqlncli.msi
 
-Sometimes there are problems with microsoft download center. 
+
+May be problems if you're running another web server. 
+Sometimes there are problems with microsoft download center. Use Internet Explorer

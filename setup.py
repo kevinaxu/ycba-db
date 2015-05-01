@@ -1,18 +1,15 @@
-import sys
+import os
 
 def main():
 
-	# MANUAL: download wamp server and default install 
-	# Download wamp drivers to get rid of error message 
+	root_dir = os.getcwd()
+	print root_dir
 
-	# Download the repository from github
-	# Unpack and rename to 'ycba'
 	# Rename app.ini.example to app.ini
 	# Prompt for user credentials here and then save them
 	#	to the app.ini file 
 
 	# Confirm that wamp server installed correctly
-	# Move the ycba directory into c:/wamp/www
 
 	# Download the php sqlsrv drivers 
 	# Put them into c:/wamp/bin/php/php5.5/ext
