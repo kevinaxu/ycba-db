@@ -13,7 +13,9 @@ Setup
 
 1.  Download the 32-bit version of [WampServer](http://www.wampserver.com/en/). Install WampServer using all the default settings. Be sure to remember which version of PHP is installed. 
 
-	<div style="text-align:center"><img src ="https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg" alt="Missing MSVCR100.dll"/></div>
+	<p align="center">
+		<img src="https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg" alt="Missing MSVCR100.dll"/>
+	</p>
 
 	![wampserver-error](https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg "Missing MSVCR100.dll")
 	
