@@ -16,8 +16,6 @@ Setup
 	<p align="center">
 		<img src="https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg" alt="Missing MSVCR100.dll"/>
 	</p>
-
-	![wampserver-error](https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg "Missing MSVCR100.dll")
 	
 	During installation, you may encounter an error about missing `MSVCR100.dll`, which is a Microsoft Visual C++ Redistributable driver. This will be resolved in a later step. 
 	
@@ -57,14 +55,16 @@ Setup
 6. To let WampServer know that extensions were added, we have to modify the `php.ini` configuration file. This can be done in two ways. 
 
     1. Click on the WampServer icon in the system tray. Go into the `PHP` folder and click on `php.ini` to edit it. 
-
-      ![Editing php.ini](https://github.com/kevinaxu/ycba-db/raw/master/img/php-ini.jpg "Edit php.ini")
+       <p align="center">
+		<img src="https://github.com/kevinaxu/ycba-db/raw/master/img/php-ini.jpg" alt="Editing php.ini"/>
+	   </p>
    
     2. Directly edit `www\bin\php\phpX.X\php.ini`. 
 
    Whichever method you choose, add the following lines to the end of the file `www\bin\php\phpX\ext`. Make sure you change the file name to correspond to the extension that you added. 
-
-   ![Adding extensions to php.ini](https://github.com/kevinaxu/ycba-db/raw/master/img/php-ini2.jpg "Adding extensions to php.ini")
+   <p align="center">
+		<img src="https://github.com/kevinaxu/ycba-db/raw/master/img/php-ini2.jpg" alt="Adding extensions to php.ini"/>
+   </p>
 
    Save the file. 
    
