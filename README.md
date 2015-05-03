@@ -13,6 +13,8 @@ Setup
 
 1.  Download the 32-bit version of [WampServer](http://www.wampserver.com/en/). Install WampServer using all the default settings. Be sure to remember which version of PHP is installed. 
 
+	<div style="text-align:center"><img src ="https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg" alt="Missing MSVCR100.dll"/></div>
+
 	![wampserver-error](https://github.com/kevinaxu/ycba-db/raw/master/img/wamp-error.jpg "Missing MSVCR100.dll")
 	
 	During installation, you may encounter an error about missing `MSVCR100.dll`, which is a Microsoft Visual C++ Redistributable driver. This will be resolved in a later step. 
@@ -37,7 +39,7 @@ Setup
 	   .
 	   .
    ```
-   
+
 4. Install the Microsoft Visual C++ Redistributable driver by going into `ycba\drivers` and running the executables. 
 
    32-bit machines should run all the executables in the `x84` folder, while 64-bit machines should run all the ones in `x64`. 
