@@ -21,22 +21,23 @@ Setup
 
 3. Open up the directory where WampServer was downloaded (should be in the `C:` drive). Move the ycba repository into the `www` folder of wamp. The final directory structure should look like this: 
 
-```
-C:
-└─wamp
-	├─www
-	│   └─ycba
-	│       ├─config
-	│       │   └─app.ini
-	│       ├─drivers
-	│       └─img
-	├─alias
-	├─apps
-	├─bin
-	.
-	.
-	.
-```
+   ```
+   C:
+   └─wamp
+	   ├─www
+	   │   └─ycba
+	   │       ├─config
+	   │       │   └─app.ini
+	   │       ├─drivers
+	   │       └─img
+	   ├─alias
+	   ├─apps
+	   ├─bin
+	   .
+	   .
+	   .
+   ```
+   
 4. Install the Microsoft Visual C++ Redistributable driver by going into `ycba\drivers` and running the executables. 
 
    32-bit machines should run all the executables in the `x84` folder, while 64-bit machines should run all the ones in `x64`. 
